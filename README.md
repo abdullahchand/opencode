@@ -62,6 +62,55 @@ nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev
 > [!TIP]
 > Remove versions older than 0.1.x before installing.
 
+### Development (run from source)
+
+This repo uses [Bun](https://bun.sh) and the workspace **catalog** for dependencies. Install Bun, then install and run:
+
+```bash
+# Install Bun (Linux: unzip required — e.g. sudo apt install unzip)
+curl -fsSL https://bun.sh/install | bash
+# Restart your shell or source ~/.bashrc / ~/.zshrc
+
+# From repo root: install all workspace dependencies
+bun install
+
+# Run the main opencode dev entry (TUI)
+bun run dev
+
+# Run the backend server (from repo root)
+bun run --cwd packages/opencode serve
+```
+
+- **`bun run dev`** – runs the opencode package with browser condition (dev TUI).
+- **`bun run --cwd packages/opencode serve`** – starts the headless server (default port 4096). Uses the TypeScript CLI so no platform binary is required when developing from source. Logs are printed to the terminal so you see build started/completed/failed.
+
+#### Build API (test with curl)
+
+With the server running, you can trigger builds and check status:
+
+```bash
+# 1. Start the server (in one terminal)
+bun run --cwd packages/opencode serve
+# → "opencode server listening on http://localhost:4096"
+#    You should see "build started", "build running", "build completed" (or "build failed") when you trigger a build.
+
+# 2. Start a build (use an absolute path for directory; use a real webhook URL to receive the result)
+curl -X POST http://localhost:4096/api/build \
+  -H "Content-Type: application/json" \
+  -d '{
+    "directory": "/abs/path/to/your/project",
+    "prompt": "List the files in the project root.",
+    "webhook_url": "https://webhook.site/your-unique-id"
+  }'
+# → 202 with job_id, session_id, directory, status: "running"
+
+# 3. Check build status
+curl http://localhost:4096/api/build/JOB_ID_FROM_RESPONSE
+# → job_id, session_id, directory, status, live_url, error, updated_at
+```
+
+Use your own project path for `directory` and a real URL for `webhook_url` (e.g. create a request URL at [webhook.site](https://webhook.site) to see the POST body when the build finishes). For a "fix" run, send the same JSON with `"job_id": "build_xxx"` and a new `prompt`.
+
 ### Desktop App (BETA)
 
 OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).

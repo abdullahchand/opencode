@@ -5,7 +5,21 @@
       "options": {},
     },
   },
-  "mcp": {},
+  "mcp": {
+    "stitch": {
+      "type": "local",
+      "command": ["npx", "-y", "@_davideast/stitch-mcp", "proxy"],
+      "enabled": true,
+      "environment": {
+        "STITCH_API_KEY": "{env:STITCH_API_KEY}"
+      }
+    },
+    "netlify": {
+      "type": "local",
+      "command": ["npx", "-y", "@netlify/mcp"],
+      "enabled": true
+    }
+  },
   "tools": {
     "github-triage": false,
     "github-pr-search": false,
