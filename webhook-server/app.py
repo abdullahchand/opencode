@@ -413,7 +413,10 @@ LIVE_HTML = """
       frame.src = siteFallback;
     }
 
+    let pollTimer = null;
+
     async function fetchPreviewUrl(jobId) {
+      if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
       try {
         const r = await fetch("/build/" + jobId);
         const data = await r.json();
@@ -423,7 +426,7 @@ LIVE_HTML = """
           statusEl.textContent = "Viewing via Build API preview_url";
         } else if (data.status === "running") {
           previewUrlEl.textContent = "Build running…";
-          setTimeout(() => fetchPreviewUrl(jobId), 2000);
+          pollTimer = setTimeout(() => fetchPreviewUrl(jobId), 3000);
         } else {
           frame.src = siteFallback;
           previewUrlEl.textContent = "No preview_url yet; showing local serve.";

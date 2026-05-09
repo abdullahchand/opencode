@@ -4935,6 +4935,179 @@ export type TuiControlResponseResponses = {
 
 export type TuiControlResponseResponse = TuiControlResponseResponses[keyof TuiControlResponseResponses]
 
+export type BuildStartData = {
+  body?: {
+    job_id?: string
+    directory?: string
+    repo_url?: string
+    prompt: string
+    webhook_url: string
+    options?: {
+      mcp_servers?: Array<string>
+      deploy?: {
+        netlify?: {
+          site_id?: string
+          team_slug?: string
+          deploy_dir?: string
+        }
+        supabase?: {
+          project_ref: string
+          db_password?: string
+        }
+      }
+      agent?: string
+      model?: {
+        providerID: string
+        modelID: string
+      }
+    }
+    skip_deploy?: boolean
+  }
+  path?: never
+  query?: {
+    directory?: string
+  }
+  url: "/api/build"
+}
+
+export type BuildStartErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type BuildStartError = BuildStartErrors[keyof BuildStartErrors]
+
+export type BuildStartResponses = {
+  /**
+   * Build started
+   */
+  202: {
+    job_id: string
+    session_id: string
+    directory: string
+    status: "running"
+    message: string
+  }
+}
+
+export type BuildStartResponse = BuildStartResponses[keyof BuildStartResponses]
+
+export type BuildSendData = {
+  body?: {
+    prompt: string
+    webhook_url?: string
+  }
+  path: {
+    job_id: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/api/build/{job_id}/send"
+}
+
+export type BuildSendErrors = {
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type BuildSendError = BuildSendErrors[keyof BuildSendErrors]
+
+export type BuildSendResponses = {
+  /**
+   * Message sent; result will be sent to webhook.
+   */
+  202: {
+    job_id: string
+    session_id: string
+    status: "running"
+    message: string
+  }
+}
+
+export type BuildSendResponse = BuildSendResponses[keyof BuildSendResponses]
+
+export type BuildStatusData = {
+  body?: never
+  path: {
+    job_id: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/api/build/{job_id}"
+}
+
+export type BuildStatusErrors = {
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type BuildStatusError = BuildStatusErrors[keyof BuildStatusErrors]
+
+export type BuildStatusResponses = {
+  /**
+   * Build status
+   */
+  200: {
+    job_id: string
+    session_id: string
+    directory: string
+    status: "running" | "completed" | "failed"
+    preview_url: string | null
+    live_url: string | null
+    claim_url: string | null
+    error: string | null
+    response: string | null
+    updated_at: number
+  }
+}
+
+export type BuildStatusResponse = BuildStatusResponses[keyof BuildStatusResponses]
+
+export type BuildDeployData = {
+  body?: never
+  path: {
+    job_id: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/api/build/{job_id}/deploy"
+}
+
+export type BuildDeployErrors = {
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type BuildDeployError = BuildDeployErrors[keyof BuildDeployErrors]
+
+export type BuildDeployResponses = {
+  /**
+   * Deploy completed
+   */
+  200: {
+    job_id: string
+    live_url: string
+    claim_url: string | null
+  }
+}
+
+export type BuildDeployResponse = BuildDeployResponses[keyof BuildDeployResponses]
+
 export type InstanceDisposeData = {
   body?: never
   path?: never

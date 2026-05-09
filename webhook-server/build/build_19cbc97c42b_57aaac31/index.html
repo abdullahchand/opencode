@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Barber Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #c9a962;
+      --gold-dark: #a68b4b;
+      --black: #0a0a0a;
+      --charcoal: #1a1a1a;
+      --cream: #f5f0e8;
+      --gray: #666;
+    }
+
+    body {
+      font-family: 'Oswald', sans-serif;
+      background: var(--black);
+      color: var(--cream);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+      transition: background 0.3s;
+    }
+
+    header.scrolled {
+      background: rgba(10,10,10,0.98);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 45px;
+      height: 45px;
+      position: relative;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--gold);
+    }
+
+    .logo-text span {
+      color: var(--cream);
+    }
+
+    nav {
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    nav a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--gold);
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      opacity: 0.4;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.3), rgba(10,10,10,0.8));
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 800px;
+      padding: 0 2rem;
+    }
+
+    .hero-tagline {
+      font-size: 0.9rem;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 span {
+      color: var(--gold);
+      display: block;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--gray);
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: var(--gold);
+      color: var(--black);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--gold-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: 8rem 2rem;
+      background: var(--charcoal);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-header p {
+      color: var(--gray);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: var(--black);
+      padding: 2.5rem;
+      border: 1px solid #2a2a2a;
+      transition: border-color 0.3s;
+    }
+
+    .testimonial-card:hover {
+      border-color: var(--gold);
+    }
+
+    .stars {
+      color: var(--gold);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-card p {
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .client {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .client-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--black);
+    }
+
+    .client-name {
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .client-role {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    /* Contact */
+    .contact {
+      padding: 8rem 2rem;
+      background: var(--black);
+    }
+
+    .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      background: var(--charcoal);
+      border: 1px solid #2a2a2a;
+      color: var(--cream);
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--gray);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gray);
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid #2a2a2a;
+      color: var(--gray);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.5 2L4 15L22.5 43L41 15L22.5 2Z" stroke="#C9A962" stroke-width="2" fill="none"/>
+          <path d="M22.5 12L12 20L22.5 33L33 20L22.5 12Z" fill="#C9A962"/>
+          <circle cx="22.5" cy="22" r="4" fill="#0A0A0A"/>
+        </svg>
+      </div>
+      <div class="logo-text">ROGUE<span>BLADE</span></div>
+    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="home">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="https://videos.pexels.com/video-files/4058447/4058447-uhd_2560_1440_25fps.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-tagline">Est. 2019 • Downtown</p>
+      <h1>Refine Your <span>Edge</span></h1>
+      <p>Premium cuts, classic barbering, and a modern take on the traditional grooming experience.</p>
+      <a href="#contact" class="btn">Book Appointment</a>
+    </div>
+  </section>
+
+  <section class="testimonials" id="testimonials">
+    <div class="section-header">
+      <p>What They Say</p>
+      <h2>Client Testimonials</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>"Best barbershop in the city. The attention to detail is incredible. My fade has never looked better."</p>
+        <div class="client">
+          <div class="client-avatar">MR</div>
+          <div>
+            <div class="client-name">Marcus Reynolds</div>
+            <div class="client-role">Regular Client</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>"The atmosphere is unmatched. Professional, skilled, and they always know exactly what you want."</p>
+        <div class="client">
+          <div class="client-avatar">JT</div>
+          <div>
+            <div class="client-name">James Thompson</div>
+            <div class="client-role">Regular Client</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>"Been coming here for years. Consistently great cuts and the hot towel shave is an experience itself."</p>
+        <div class="client">
+          <div class="client-avatar">DK</div>
+          <div>
+            <div class="client-name">David Kim</div>
+            <div class="client-role">Regular Client</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="section-header">
+      <p>Get In Touch</p>
+      <h2>Book Your Visit</h2>
+    </div>
+    <div class="contact-container">
+      <form class="contact-form" action="#" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" placeholder="Your name" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="Your phone" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="Your email" required>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea placeholder="Tell us about your style preferences..."></textarea>
+        </div>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <p>My Barber Shop Barbershop &copy; 2026. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const header = document.querySelector('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+  </script>
+</body>
+</html>

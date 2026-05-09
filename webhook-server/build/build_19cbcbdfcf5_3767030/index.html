@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Barber Shop - Premium Barbershop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #c9a227;
+      --dark: #1a1a1a;
+      --cream: #f5f0e8;
+      --charcoal: #2d2d2d;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--dark);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--cream);
+      letter-spacing: 2px;
+    }
+
+    .logo-text span {
+      color: var(--gold);
+    }
+
+    nav a {
+      color: var(--cream);
+      text-decoration: none;
+      margin-left: 2rem;
+      font-weight: 400;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--gold);
+    }
+
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(rgba(26,26,26,0.85), rgba(26,26,26,0.85)), 
+                  url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1920') center/cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: var(--cream);
+      margin-bottom: 1rem;
+      letter-spacing: 4px;
+    }
+
+    .hero h1 span {
+      color: var(--gold);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--cream);
+      opacity: 0.8;
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+
+    .cta-button {
+      background: var(--gold);
+      color: var(--dark);
+      padding: 1rem 2.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .cta-button:hover {
+      background: var(--cream);
+      transform: translateY(-3px);
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: var(--dark);
+    }
+
+    .section-title span {
+      color: var(--gold);
+    }
+
+    .testimonials {
+      padding: 5rem 2rem;
+      background: var(--cream);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: white;
+      padding: 2rem;
+      border-left: 4px solid var(--gold);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .testimonial-card p {
+      font-style: italic;
+      color: var(--charcoal);
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .testimonial-avatar {
+      width: 50px;
+      height: 50px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .testimonial-rating {
+      color: var(--gold);
+      font-size: 0.9rem;
+    }
+
+    .contact {
+      padding: 5rem 2rem;
+      background: var(--dark);
+    }
+
+    .contact .section-title {
+      color: var(--cream);
+    }
+
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      color: var(--cream);
+      font-weight: 400;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      padding: 1rem;
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      background: var(--charcoal);
+      color: var(--cream);
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .submit-button {
+      background: var(--gold);
+      color: var(--dark);
+      padding: 1rem 2rem;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-button:hover {
+      background: var(--cream);
+    }
+
+    footer {
+      background: var(--charcoal);
+      padding: 2rem;
+      text-align: center;
+      color: var(--cream);
+      opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" stroke="#c9a227" stroke-width="2"/>
+          <path d="M12 20C12 20 15 14 20 14C25 14 28 20 28 20" stroke="#c9a227" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="20" cy="26" r="3" fill="#c9a227"/>
+          <path d="M20 29V32" stroke="#c9a227" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="logo-text">MY BARBER SHOP</div>
+    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="home">
+    <h1>PRECISION <span>CUTS</span></h1>
+    <p>Where classic grooming meets modern style. Experience the art of the perfect cut at My Barber Shop.</p>
+    <a href="#contact" class="cta-button">BOOK NOW</a>
+  </section>
+
+  <section class="testimonials" id="testimonials">
+    <h2 class="section-title">What <span>Clients Say</span></h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p>"Best barbershop in town. The attention to detail is incredible. I've never looked better!"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JD</div>
+          <div>
+            <div class="testimonial-name">James Davis</div>
+            <div class="testimonial-rating">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p>"The vintage atmosphere combined with modern techniques makes this place special. Highly recommend!"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MR</div>
+          <div>
+            <div class="testimonial-name">Mike Reynolds</div>
+            <div class="testimonial-rating">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p>"Been coming here for years. Consistent quality and great conversations. My Barber Shop is unmatched."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SK</div>
+          <div>
+            <div class="testimonial-name">Sarah Kim</div>
+            <div class="testimonial-rating">★★★★★</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2 class="section-title">Book Your <span>Appointment</span></h2>
+    <form class="contact-form" action="#" method="POST">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="Tell us about your desired style..."></textarea>
+      </div>
+      <button type="submit" class="submit-button">SEND MESSAGE</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 My Barber Shop. All rights reserved.</p>
+  </footer>
+</body>
+</html>

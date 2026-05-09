@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Gentleman Cut | Premium Barbershop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #c9a227;
+      --gold-dark: #a68520;
+      --dark: #1a1a1a;
+      --dark-secondary: #2d2d2d;
+      --cream: #f5f0e8;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--dark);
+      color: var(--cream);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--dark);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-icon::before {
+      content: '';
+      width: 24px;
+      height: 3px;
+      background: var(--dark);
+      border-radius: 2px;
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      width: 3px;
+      height: 24px;
+      background: var(--dark);
+      border-radius: 2px;
+      transform: rotate(90deg);
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    nav a {
+      color: var(--cream);
+      text-decoration: none;
+      margin-left: 2rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--gold);
+    }
+
+    .hero {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(180deg, var(--dark) 0%, var(--dark-secondary) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(201, 162, 39, 0.08) 0%, transparent 60%);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      color: var(--gold);
+      margin-bottom: 1rem;
+      letter-spacing: 4px;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--cream);
+      opacity: 0.8;
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: var(--gold);
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .cta-button:hover {
+      background: var(--gold-dark);
+      transform: translateY(-2px);
+    }
+
+    .section {
+      padding: 5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 3rem;
+      letter-spacing: 2px;
+    }
+
+    .testimonials {
+      background: var(--dark-secondary);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      background: var(--dark);
+      padding: 2rem;
+      border-left: 3px solid var(--gold);
+    }
+
+    .testimonial-card p {
+      font-style: italic;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .contact {
+      background: linear-gradient(180deg, var(--dark-secondary) 0%, var(--dark) 100%);
+    }
+
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      color: var(--gold);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      padding: 1rem;
+      background: var(--dark);
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      color: var(--cream);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .submit-button {
+      padding: 1rem 2rem;
+      background: var(--gold);
+      color: var(--dark);
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .submit-button:hover {
+      background: var(--gold-dark);
+    }
+
+    footer {
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(201, 162, 39, 0.2);
+      color: var(--cream);
+      opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      nav {
+        display: flex;
+        gap: 1rem;
+      }
+
+      nav a {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <span class="logo-text">THE GENTLEMAN CUT</span>
+    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="home">
+    <h1>THE GENTLEMAN CUT</h1>
+    <p>Premium cuts, classic grooming. Where tradition meets style.</p>
+    <a href="#contact" class="cta-button">BOOK NOW</a>
+  </section>
+
+  <section class="testimonials section" id="testimonials">
+    <h2 class="section-title">What They Say</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p>"Best barbershop in town. The attention to detail is unmatched. My go-to for years."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JD</div>
+          <span class="testimonial-name">James Davis</span>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p>"The atmosphere is incredible and the cuts are always precise. Wouldn't go anywhere else."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MR</div>
+          <span class="testimonial-name">Michael Ross</span>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p>"Finally found a barbershop that understands what a proper fade should look like."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SK</div>
+          <span class="testimonial-name">Sarah Kim</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact section" id="contact">
+    <h2 class="section-title">Get In Touch</h2>
+    <form class="contact-form" onsubmit="event.preventDefault(); alert('Thank you for your message! We will be in touch soon.');">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="Tell us about your hairstyle needs..."></textarea>
+      </div>
+      <button type="submit" class="submit-button">SEND MESSAGE</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 The Gentleman Cut. All rights reserved.</p>
+  </footer>
+</body>
+</html>

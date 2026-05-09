@@ -1,0 +1,12 @@
+{
+  "name": "the-final-cut",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.11",
+    "hono": "^4.0.0"
+  }
+}

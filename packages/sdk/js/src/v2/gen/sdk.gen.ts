@@ -13,6 +13,14 @@ import type {
   AuthRemoveResponses,
   AuthSetErrors,
   AuthSetResponses,
+  BuildDeployErrors,
+  BuildDeployResponses,
+  BuildSendErrors,
+  BuildSendResponses,
+  BuildStartErrors,
+  BuildStartResponses,
+  BuildStatusErrors,
+  BuildStatusResponses,
   CommandListResponses,
   Config as Config3,
   ConfigGetResponses,
@@ -3001,6 +3009,180 @@ export class Tui extends HeyApiClient {
   }
 }
 
+export class Build extends HeyApiClient {
+  /**
+   * Start or continue a build
+   *
+   * Start a new build (or fix an existing one). System builds in the given directory (or cloned repo), uses MCP, optionally deploys, and sends the result to the webhook.
+   */
+  public start<ThrowOnError extends boolean = false>(
+    parameters?: {
+      query_directory?: string
+      job_id?: string
+      body_directory?: string
+      repo_url?: string
+      prompt?: string
+      webhook_url?: string
+      options?: {
+        mcp_servers?: Array<string>
+        deploy?: {
+          netlify?: {
+            site_id?: string
+            team_slug?: string
+            deploy_dir?: string
+          }
+          supabase?: {
+            project_ref: string
+            db_password?: string
+          }
+        }
+        agent?: string
+        model?: {
+          providerID: string
+          modelID: string
+        }
+      }
+      skip_deploy?: boolean
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            {
+              in: "query",
+              key: "query_directory",
+              map: "directory",
+            },
+            { in: "body", key: "job_id" },
+            {
+              in: "body",
+              key: "body_directory",
+              map: "directory",
+            },
+            { in: "body", key: "repo_url" },
+            { in: "body", key: "prompt" },
+            { in: "body", key: "webhook_url" },
+            { in: "body", key: "options" },
+            { in: "body", key: "skip_deploy" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<BuildStartResponses, BuildStartErrors, ThrowOnError>({
+      url: "/api/build",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * Send a message to the session (session-based)
+   *
+   * Send a prompt/message to this build session. The agent has full context of the session. Use this to modify the site or ask follow-ups. No JSON instruction is prepended (conversational).
+   */
+  public send<ThrowOnError extends boolean = false>(
+    parameters: {
+      job_id: string
+      directory?: string
+      prompt?: string
+      webhook_url?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "job_id" },
+            { in: "query", key: "directory" },
+            { in: "body", key: "prompt" },
+            { in: "body", key: "webhook_url" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<BuildSendResponses, BuildSendErrors, ThrowOnError>({
+      url: "/api/build/{job_id}/send",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * Get build status
+   *
+   * Get current status and result URL for a build job.
+   */
+  public status<ThrowOnError extends boolean = false>(
+    parameters: {
+      job_id: string
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "job_id" },
+            { in: "query", key: "directory" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<BuildStatusResponses, BuildStatusErrors, ThrowOnError>({
+      url: "/api/build/{job_id}",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Deploy a completed build to Netlify
+   *
+   * Runs the Netlify deploy step for an existing job (e.g. after previewing and modifying). Job must exist; deploy uses the job's directory and config.
+   */
+  public deploy<ThrowOnError extends boolean = false>(
+    parameters: {
+      job_id: string
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "job_id" },
+            { in: "query", key: "directory" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<BuildDeployResponses, BuildDeployErrors, ThrowOnError>({
+      url: "/api/build/{job_id}/deploy",
+      ...options,
+      ...params,
+    })
+  }
+}
+
 export class Instance extends HeyApiClient {
   /**
    * Dispose instance
@@ -3322,6 +3504,11 @@ export class OpencodeClient extends HeyApiClient {
   private _tui?: Tui
   get tui(): Tui {
     return (this._tui ??= new Tui({ client: this.client }))
+  }
+
+  private _build?: Build
+  get build(): Build {
+    return (this._build ??= new Build({ client: this.client }))
   }
 
   private _instance?: Instance

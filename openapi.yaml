@@ -1,0 +1,445 @@
+openapi: 3.1.0
+info:
+  title: OpenCode Build API
+  description: AI-powered site builder API. Start builds, preview sites, send follow-up messages, and deploy to Netlify.
+  version: 1.0.0
+  contact:
+    name: OpenCode
+    url: https://github.com/anomalyco/opencode
+
+servers:
+  - url: http://localhost:4096
+    description: Local Build API (OpenCode server)
+  - url: http://127.0.0.1:5050
+    description: Local Webhook Server (Flask proxy)
+
+tags:
+  - name: build
+    description: Start and manage build jobs
+  - name: preview
+    description: Preview built sites
+  - name: deploy
+    description: Deploy to Netlify
+  - name: webhook
+    description: Webhook endpoints (Flask proxy server)
+
+paths:
+  /api/build:
+    post:
+      operationId: build.start
+      tags: [build]
+      summary: Start or continue a build
+      description: |
+        Start a new build or continue an existing one. The AI agent builds in the given directory,
+        uses MCP tools, optionally deploys, and sends the result to the webhook.
+        If `job_id` is provided and exists, reuses that job's session (stateful fix flow).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BuildStartRequest"
+            examples:
+              new_build:
+                summary: Start a new build (preview only)
+                value:
+                  prompt: "Build a barber shop landing page with a header, services section, and CTA"
+                  webhook_url: "http://127.0.0.1:5050/webhook"
+                  skip_deploy: true
+              with_directory:
+                summary: Build in a specific directory
+                value:
+                  directory: "/home/user/my-project"
+                  prompt: "Build a portfolio site"
+                  webhook_url: "http://127.0.0.1:5050/webhook"
+                  skip_deploy: true
+              continue_build:
+                summary: Continue an existing build (fix flow)
+                value:
+                  job_id: "build_xxx"
+                  prompt: "Add a contact form section"
+                  webhook_url: "http://127.0.0.1:5050/webhook"
+      responses:
+        "202":
+          description: Build started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BuildStartResponse"
+        "400":
+          description: Bad request (missing prompt, repo_url not supported)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Build already running for this job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/build/{job_id}:
+    get:
+      operationId: build.status
+      tags: [build]
+      summary: Get build status
+      description: Get current status and result URLs for a build job.
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Build status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BuildStatus"
+        "404":
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/build/{job_id}/send:
+    post:
+      operationId: build.send
+      tags: [build]
+      summary: Send a message to the session
+      description: |
+        Send a follow-up prompt to an existing build session. The agent has full context
+        of all previous messages. No JSON instruction is prepended (conversational).
+        Use this to modify the site or ask follow-ups after the initial build.
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendRequest"
+            examples:
+              modify:
+                summary: Modify the site
+                value:
+                  prompt: "Change the header to 'The Gentleman Cut' and make the color scheme dark"
+              add_section:
+                summary: Add a section
+                value:
+                  prompt: "Add a testimonials section with 3 customer reviews"
+      responses:
+        "202":
+          description: Message sent; result will be sent to webhook
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendResponse"
+        "404":
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Session busy (previous message still running)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/build/{job_id}/deploy:
+    post:
+      operationId: build.deploy
+      tags: [deploy]
+      summary: Deploy to Netlify
+      description: |
+        Deploy a completed build to Netlify. Creates a new Netlify site, zips the build
+        directory, and uploads it. Returns the live URL and optional claim URL.
+        Requires `NETLIFY_PERSONAL_ACCESS_TOKEN` and `NETLIFY_TEAM_SLUG` env vars.
+        On failure, the job's webhook is notified with `deploy_error`.
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Deploy completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeployResponse"
+        "400":
+          description: Netlify not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Build still running
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Deploy failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/build/preview/{job_id}:
+    get:
+      operationId: build.preview
+      tags: [preview]
+      summary: Preview the built site
+      description: |
+        Serves the built site's index.html directly from disk. This is the URL
+        returned as `preview_url` in the build status and webhook payloads.
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: Job not found or no index.html
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/build/preview/{job_id}/{path}:
+    get:
+      operationId: build.preview.asset
+      tags: [preview]
+      summary: Serve a preview asset
+      description: Serves static assets (CSS, JS, images) from the built site.
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Relative path to the asset (e.g. `style.css`, `images/logo.png`)
+      responses:
+        "200":
+          description: File content with appropriate MIME type
+        "404":
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  parameters:
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Build job identifier (e.g. `build_mmbmc5qa_b1y3rtn`)
+
+  schemas:
+    BuildStartRequest:
+      type: object
+      required: [prompt, webhook_url]
+      properties:
+        job_id:
+          type: string
+          description: Existing job ID to continue (fix flow). Omit for a new build.
+        directory:
+          type: string
+          description: Absolute path to the project directory. If omitted, auto-created as `build/<job_id>`.
+        repo_url:
+          type: string
+          format: uri
+          description: Git repo URL to clone (not yet implemented).
+        prompt:
+          type: string
+          description: What to build or change.
+        webhook_url:
+          type: string
+          format: uri
+          description: URL to receive the result webhook POST.
+        skip_deploy:
+          type: boolean
+          default: false
+          description: If true, skip auto-deploy after build (preview only).
+        options:
+          $ref: "#/components/schemas/BuildOptions"
+
+    BuildOptions:
+      type: object
+      properties:
+        mcp_servers:
+          type: array
+          items:
+            type: string
+          description: MCP servers to enable.
+        deploy:
+          type: object
+          properties:
+            netlify:
+              type: object
+              properties:
+                site_id:
+                  type: string
+                team_slug:
+                  type: string
+                deploy_dir:
+                  type: string
+                  description: Subdirectory to deploy (default `dist`).
+            supabase:
+              type: object
+              properties:
+                project_ref:
+                  type: string
+                db_password:
+                  type: string
+        agent:
+          type: string
+          description: Agent name to use.
+        model:
+          type: object
+          properties:
+            providerID:
+              type: string
+            modelID:
+              type: string
+
+    BuildStartResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        session_id:
+          type: string
+        directory:
+          type: string
+        status:
+          type: string
+          enum: [running]
+        message:
+          type: string
+
+    BuildStatus:
+      type: object
+      properties:
+        job_id:
+          type: string
+        session_id:
+          type: string
+        directory:
+          type: string
+        status:
+          type: string
+          enum: [running, completed, failed]
+        preview_url:
+          type: string
+          nullable: true
+          description: URL to preview the built site (no trailing slash).
+        live_url:
+          type: string
+          nullable: true
+          description: Netlify live URL (set after deploy).
+        claim_url:
+          type: string
+          nullable: true
+          description: Netlify claim URL (lets users claim the site).
+        error:
+          type: string
+          nullable: true
+        response:
+          type: string
+          nullable: true
+          description: One-sentence summary from the AI agent.
+        updated_at:
+          type: number
+          description: Unix timestamp (ms).
+
+    SendRequest:
+      type: object
+      required: [prompt]
+      properties:
+        prompt:
+          type: string
+          description: Follow-up message for the session.
+        webhook_url:
+          type: string
+          format: uri
+          description: Override the webhook URL for this message.
+
+    SendResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        session_id:
+          type: string
+        status:
+          type: string
+          enum: [running]
+        message:
+          type: string
+
+    DeployResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        live_url:
+          type: string
+          description: Netlify live URL.
+        claim_url:
+          type: string
+          nullable: true
+          description: Netlify claim URL.
+
+    WebhookPayload:
+      type: object
+      description: Payload sent to your webhook_url when a build completes or fails.
+      properties:
+        job_id:
+          type: string
+        session_id:
+          type: string
+        status:
+          type: string
+          enum: [completed, failed]
+        preview_url:
+          type: string
+          nullable: true
+        live_url:
+          type: string
+          nullable: true
+        claim_url:
+          type: string
+          nullable: true
+        error:
+          type: string
+          nullable: true
+        response:
+          type: string
+          nullable: true
+        deploy_error:
+          type: string
+          nullable: true
+          description: Present when deploy was attempted and failed.
+        timestamp:
+          type: number
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string

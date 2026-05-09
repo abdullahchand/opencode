@@ -24,31 +24,30 @@ export type NetlifyDeployResult = {
 
 export type NetlifyDeployError = { error: string }
 
-/** Resolve the directory to serve for preview/deploy (dist, public, or directory with index.html). */
+/** Resolve the directory to serve for preview/deploy. Prefers candidates that contain index.html. */
 export async function getDeployDir(
   directory: string,
   config: { deploy_dir?: string } = {},
 ): Promise<string | null> {
   const deployDir = config.deploy_dir ?? "dist"
-  let dir = deployDir === "." ? directory : path.join(directory, deployDir)
-  try {
-    await fs.access(dir)
-    return dir
-  } catch {
-    const fallback = path.join(directory, "public")
+  const candidates = [
+    deployDir === "." ? directory : path.join(directory, deployDir),
+    path.join(directory, "public"),
+    directory,
+  ]
+  for (const dir of candidates) {
     try {
-      await fs.access(fallback)
-      return fallback
-    } catch {
-      const rootIndex = path.join(directory, "index.html")
-      try {
-        await fs.access(rootIndex)
-        return directory
-      } catch {
-        return null
-      }
-    }
+      await fs.access(path.join(dir, "index.html"))
+      return dir
+    } catch {}
   }
+  for (const dir of candidates) {
+    try {
+      await fs.access(dir)
+      return dir
+    } catch {}
+  }
+  return null
 }
 
 /** Result is either success or an error object (never null). */
@@ -70,8 +69,10 @@ export async function deployToNetlify(
     log.warn("no deploy dir found", { directory })
     return { error: "No deploy directory found (no dist, public, or index.html)" }
   }
+  log.info("deploy dir resolved", { job_id: jobId, directory, deploy_dir: dirToZip })
 
-  const zipPath = path.join(directory, `.netlify-deploy-${jobId}.zip`)
+  const tmpDir = await fs.mkdtemp(path.join(directory, ".deploy-"))
+  const zipPath = path.join(tmpDir, `deploy.zip`)
   try {
     const proc = Bun.spawn(["zip", "-r", "-q", zipPath, "."], {
       cwd: dirToZip,
@@ -82,10 +83,12 @@ export async function deployToNetlify(
     const exit = await proc.exited
     if (exit !== 0) {
       log.warn("zip failed", { exit, stderr: err })
+      await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
       return { error: err || `Zip failed with exit ${exit}` }
     }
   } catch (e) {
     log.warn("zip command failed", { error: e })
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
     return { error: e instanceof Error ? e.message : "Zip command failed" }
   }
 
@@ -118,7 +121,7 @@ export async function deployToNetlify(
     return { error: "Netlify not configured: set NETLIFY_TEAM_SLUG or pass site_id" }
   }
 
-  const zipBuf = await fs.readFile(zipPath).finally(() => fs.unlink(zipPath).catch(() => {}))
+  const zipBuf = await fs.readFile(zipPath).finally(() => fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {}))
   const deployRes = await fetch(`${API}/sites/${siteId}/deploys`, {
     method: "POST",
     headers: {
